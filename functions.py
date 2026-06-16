@@ -13,9 +13,9 @@ FEISHU_AUTHORIZE_URL = os.getenv(
     "FEISHU_AUTHORIZE_URL",
     "https://open.feishu.cn/open-apis/authen/v1/index",
 )
-FEISHU_APP_ID = "cli_aa8973ab35f85cd9"
-FEISHU_APP_SECRET = "9W7TqWR4zxgXkuXI1HNabe23xC4eatC3"
-FEISHU_REDIRECT_URI = "http://223.78.73.100:8010/feishu/callback"
+FEISHU_APP_ID = ""
+FEISHU_APP_SECRET = ""
+FEISHU_REDIRECT_URI = ""
 FEISHU_APP_ACCESS_TOKEN_URL = "https://open.feishu.cn/open-apis/auth/v3/app_access_token/internal"
 FEISHU_USER_ACCESS_TOKEN_URL = "https://open.feishu.cn/open-apis/authen/v1/access_token"
 FEISHU_USER_INFO_URL = "https://open.feishu.cn/open-apis/authen/v1/user_info"

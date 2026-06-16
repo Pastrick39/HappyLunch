@@ -88,3 +88,49 @@ http://127.0.0.1:8000/
 - 前端默认请求当前站点地址；如果直接用本地文件方式打开页面，会默认请求 `http://127.0.0.1:8000`。
 - 订餐人姓名字段最长 5 个字符，操作人字段最长 43 个字符。
 - 代码中的部分业务文案和枚举值依赖现有数据库内容，修改餐别、形式等字段时需要同步检查前后端与数据库。
+
+## Docker 部署
+
+项目已提供 `Dockerfile`、`docker-compose.yml` 和 `.env.example`。
+
+1. 复制环境变量模板：
+
+```powershell
+Copy-Item .env.example .env
+```
+
+2. 修改 `.env`，至少确认数据库和飞书配置：
+
+```env
+DB_SERVER=你的SQLServer地址
+DB_PORT=1433
+DB_NAME=TC
+DB_USER=你的数据库用户
+DB_PASSWORD=你的数据库密码
+
+FEISHU_APP_ID=你的飞书AppID
+FEISHU_APP_SECRET=你的飞书AppSecret
+FEISHU_REDIRECT_URI=http://你的域名或IP:8000/feishu/callback
+FEISHU_COOKIE_SECRET=请换成随机长字符串
+FEISHU_COOKIE_SECURE=false
+```
+
+3. 构建并启动：
+
+```powershell
+docker compose up -d --build
+```
+
+4. 查看日志：
+
+```powershell
+docker compose logs -f happy-lunch
+```
+
+启动后访问：
+
+```text
+http://服务器IP:8000/
+```
+
+如果部署在 HTTPS 域名后面，建议把 `FEISHU_COOKIE_SECURE` 设为 `true`，并把飞书后台的回调地址同步改成 `.env` 中的 `FEISHU_REDIRECT_URI`。

@@ -16,7 +16,16 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
-import pyautogui                    # 控制鼠标移动、位置、点击等操作
+
+#########################################################################
+def _db_config():
+    return {
+        "server": os.getenv("DB_SERVER", "223.78.73.100"),
+        "database": os.getenv("DB_NAME", "TC"),
+        "user": os.getenv("DB_USER", "sa"),
+        "password": os.getenv("DB_PASSWORD", ""),
+        "port": int(os.getenv("DB_PORT", "1433")),
+    }
 
 #########################################################################
 def sf_db(SQL, params=None):
@@ -26,7 +35,7 @@ def sf_db(SQL, params=None):
     #     SQL：SQL语句
     if isinstance(params, bool):
         params = None
-    con = sql.connect(server='223.78.73.100',user='sa',password='qdtc001@',database='TC')
+    con = sql.connect(**_db_config())
     try:
         cursor = con.cursor()
         cursor.execute(SQL, params or ())
@@ -60,7 +69,7 @@ def dui_db(SQL, params=None, show_result=False):
     if isinstance(params, bool):
         show_result = params
         params = None
-    conn = sql.connect(server='223.78.73.100',database='TC',user='sa',password='qdtc001@')
+    conn = sql.connect(**_db_config())
     try:
         cursor = conn.cursor()                  # 创建游标
         cursor.execute(SQL, params or ())
@@ -109,13 +118,16 @@ def append_to_file(content,file_path):
 def baidu_translate(text: str) -> str:
     '''英文翻译中文'''
     # ========== 配置 ==========
-    APP_ID = '20250720002411371'###百度翻译id
-    SECRET_KEY = 'xbWY4cSMAIgZbFNEMszU'#####百度翻译秘钥
+    APP_ID = os.getenv("BAIDU_TRANSLATE_APP_ID", "").strip()
+    SECRET_KEY = os.getenv("BAIDU_TRANSLATE_SECRET_KEY", "").strip()
     FROM_LANG = 'en'
     TO_LANG = 'zh'
     API_URL = 'https://fanyi-api.baidu.com/api/trans/vip/translate'
     if pd.isna(text) or str(text).strip() == '':
         return ''
+    if not APP_ID or not SECRET_KEY:
+        print('翻译失败：请先配置 BAIDU_TRANSLATE_APP_ID 和 BAIDU_TRANSLATE_SECRET_KEY')
+        return '翻译失败'
 
     text = str(text).strip()
     salt = str(int(time.time() * 1000))  # 毫秒级 salt
@@ -389,9 +401,15 @@ def send_message(chat_name, message, at_users=None, at_all=False, image_paths=No
     fid = rows if isinstance(rows, str) else rows[0]
 
     # ========= 获取 token =========
+    app_id = os.getenv("FEISHU_MESSAGE_APP_ID", os.getenv("FEISHU_APP_ID", "")).strip()
+    app_secret = os.getenv("FEISHU_MESSAGE_APP_SECRET", os.getenv("FEISHU_APP_SECRET", "")).strip()
+    if not app_id or not app_secret:
+        print("获取 token 失败：请先配置 FEISHU_MESSAGE_APP_ID/FEISHU_MESSAGE_APP_SECRET 或 FEISHU_APP_ID/FEISHU_APP_SECRET")
+        return False
+
     r = requests.post("https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal",
-                      json={"app_id": "cli_a82c54dbfddb100c",
-                            "app_secret": "LSCXp43s39l6YhayfxlLVdXXvh1VASUe"})
+                      json={"app_id": app_id,
+                            "app_secret": app_secret})
     access_token = r.json().get("tenant_access_token")
     if not access_token:
         print("❌ 获取 token 失败", r.json())
@@ -580,7 +598,7 @@ def 启动chrome2():
 #     # BASE_URL_PRODUCT = 'https://open.echotik.live/api/v2/video/product/list'
 #     # =====================================
 #     """获取视频完整信息：基础信息 + 关联商品"""
-#     headers = {'Authorization': 'Basic MjUwOTE1NDg5ODA2MzQwMTYwOjNkYTUwNzA3MDUyZDQwOGY4MWNjOTY1ZDQyNzE3MmNk'}
+#     headers = {'Authorization': 'Basic <ECHOTIK_TOKEN>'}
 #     # 1. 获取视频基础信息
 #     detail_params = {
 #         'video_ids': video_id,

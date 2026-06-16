@@ -1,0 +1,19 @@
+services:
+  happy-lunch:
+    build: .
+    container_name: happy-lunch
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Shanghai
+      DB_SERVER: ${DB_SERVER:-223.78.73.100}
+      DB_PORT: ${DB_PORT:-1433}
+      DB_NAME: ${DB_NAME:-TC}
+      DB_USER: ${DB_USER:-sa}
+      DB_PASSWORD: ${DB_PASSWORD:-}
+      FEISHU_APP_ID: ${FEISHU_APP_ID:-}
+      FEISHU_APP_SECRET: ${FEISHU_APP_SECRET:-}
+      FEISHU_REDIRECT_URI: ${FEISHU_REDIRECT_URI:-}
+      FEISHU_COOKIE_SECRET: ${FEISHU_COOKIE_SECRET:-}
+      FEISHU_COOKIE_SECURE: ${FEISHU_COOKIE_SECURE:-false}
+    ports:
+      - "8000:8000"
