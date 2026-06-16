@@ -1,0 +1,11 @@
+fastapi==0.136.1
+uvicorn==0.46.0
+requests==2.34.0
+pydantic==2.13.4
+setuptools==80.9.0
+python-tds==1.17.1
+pandas==3.0.3
+selenium==4.44.0
+webdriver-manager==4.0.2
+PyAutoGUI==0.9.54
+undetected-chromedriver==3.5.5

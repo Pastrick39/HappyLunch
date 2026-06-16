@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HappyLunch 订餐</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <link rel="stylesheet" href="/static/css/app.css?v=20260529-custom-date-picker" />
+</head>
+<body>
+  <div id="app" class="app-shell" v-cloak>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">HappyLunch</p>
+        <h1>快乐浪吃</h1>
+        <p class="subtitle">点一下，厨房少一分猜测；晚一步，人力多一分焦灼。</p>
+      </div>
+      <div class="user-chip" v-if="defaultOperator">
+        <span>当前用户</span>
+        <strong>{{ defaultOperator }}</strong>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>提交订餐</h2>
+            <p>注意：09:20 后不可订今天的中餐，14:00 后不可订今天的晚餐。</p>
+          </div>
+        </div>
+
+        <div class="panel-body">
+          <div class="form-grid">
+            <div class="field full">
+              <label for="userName">订餐人</label>
+              <input id="userName" class="control" v-model.trim="orderForm.user_name" maxlength="5" placeholder="请输入姓名" />
+            </div>
+
+            <div class="date-strip">
+              <div class="field">
+                <label for="startDate">开始日期</label>
+                <date-field id="startDate" v-model="orderForm.start_date"></date-field>
+              </div>
+
+              <div class="field">
+                <label for="endDate">结束日期</label>
+                <date-field id="endDate" v-model="orderForm.end_date"></date-field>
+              </div>
+
+              <button class="button secondary date-shortcut" type="button" @click="setEndDateToNextFriday">下个周五</button>
+            </div>
+
+            <div class="field">
+              <label>餐别</label>
+              <div class="segmented">
+                <button
+                  v-for="option in orderTypeOptions"
+                  :key="option.value"
+                  class="choice"
+                  type="button"
+                  :class="{ active: orderForm.order_type === option.value }"
+                  @click="orderForm.order_type = option.value"
+                >
+                  {{ option.label }}
+                </button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>形式</label>
+              <div class="segmented">
+                <button
+                  v-for="option in formTypeOptions"
+                  :key="option.value"
+                  class="choice"
+                  type="button"
+                  :class="{ active: orderForm.form_type === option.value }"
+                  @click="orderForm.form_type = option.value"
+                >
+                  {{ option.label }}
+                </button>
+              </div>
+            </div>
+
+            <div class="field full">
+              <label for="remark">备注</label>
+              <textarea id="remark" class="control" v-model.trim="orderForm.remark" maxlength="500" placeholder="可不填"></textarea>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="button primary" type="button" :disabled="submitting" @click="submitOrder">
+              {{ submitting ? "提交中..." : "提交订餐" }}
+            </button>
+            <button class="button secondary" type="button" :disabled="updating || submitting" @click="updateOrder">
+              {{ updating ? "修改中..." : "修改订单" }}
+            </button>
+            <button class="button ghost" type="button" @click="resetOrder">清空</button>
+          </div>
+
+          <div v-if="orderMessage.text" class="message" :class="orderMessage.type">{{ orderMessage.text }}</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>查询与取消</h2>
+            <p>中餐 09:20 前、晚餐 14:00 前可取消。</p>
+          </div>
+        </div>
+
+        <div class="panel-body">
+          <div class="query-row">
+            <input class="control" v-model.trim="queryUser" maxlength="5" placeholder="输入订餐人姓名" @keyup.enter="checkOrder" />
+            <button class="button primary" type="button" :disabled="querying" @click="checkOrder">
+              {{ querying ? "查询中..." : "查询" }}
+            </button>
+          </div>
+
+          <div class="query-row date-range-query">
+            <span class="query-label">查询范围</span>
+            <date-field v-model="queryStartDate"></date-field>
+            <date-field v-model="queryEndDate"></date-field>
+          </div>
+
+          <div v-if="queryMessage.text" class="message" :class="queryMessage.type">{{ queryMessage.text }}</div>
+
+          <div v-if="orders.length" class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>订餐人</th>
+                  <th>日期</th>
+                  <th>形式</th>
+                  <th>餐别</th>
+                  <th>报名人</th>
+                  <th>报名时间</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in pagedOrders" :key="item.key">
+                  <td>{{ item.userName }}</td>
+                  <td>{{ item.date }}</td>
+                  <td>{{ item.formType }}</td>
+                  <td>{{ item.orderType }}</td>
+                  <td>{{ item.operator }}</td>
+                  <td>{{ item.createdAt }}</td>
+                  <td>
+                    <button class="button danger" type="button" :disabled="deletingKey === item.key" @click="deleteOrder(item)">
+                      {{ deletingKey === item.key ? "取消中..." : "取消" }}
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div v-if="orders.length" class="pagination">
+            <div class="page-summary">
+              第 {{ currentPage }} / {{ totalPages }} 页，共 {{ orders.length }} 条
+            </div>
+            <div class="page-actions">
+              <button class="button page-button" type="button" :disabled="currentPage === 1" @click="goToPage(1)">首页</button>
+              <button class="button page-button" type="button" :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">上一页</button>
+              <button class="button page-button" type="button" :disabled="currentPage === totalPages" @click="goToPage(currentPage + 1)">下一页</button>
+              <button class="button page-button" type="button" :disabled="currentPage === totalPages" @click="goToLastPage">末页</button>
+            </div>
+          </div>
+
+          <div v-else class="empty">暂无订餐记录</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/js/app.js?v=20260529-custom-date-picker"></script>
+</body>
+</html>
