@@ -284,20 +284,19 @@ createApp({
     initOperator() {
       const params = new URLSearchParams(window.location.search);
       const operatorFromUrl = (params.get("operator") || "").trim();
-      const operator = operatorFromUrl || (localStorage.getItem("happyLunchOperator") || "").trim();
+      localStorage.removeItem("happyLunchOperator");
 
-      // if (!operator) {
-      //   window.location.href = this.endpoint("/feishu/login");
-      //   return;
-      // }
+      if (!operatorFromUrl) {
+        window.location.href = this.endpoint("/feishu/login?force=true");
+        return;
+      }
 
-      const activeOperator = operator;
+      const activeOperator = operatorFromUrl;
 
       this.defaultOperator = activeOperator;
       this.orderForm.operator = activeOperator;
       this.orderForm.user_name = this.orderForm.user_name || activeOperator;
       this.queryUser = this.queryUser || activeOperator;
-      localStorage.setItem("happyLunchOperator", activeOperator);
 
       if (operatorFromUrl) {
         params.delete("operator");

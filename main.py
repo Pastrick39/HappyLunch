@@ -3,11 +3,14 @@ from typing import Literal
 from urllib.parse import quote
 
 import uvicorn
+from dotenv import load_dotenv
 from fastapi import FastAPI, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.responses import FileResponse, RedirectResponse
+
+load_dotenv()
 
 import functions
 
