@@ -48,7 +48,7 @@ pip install -r requirements.txt
 ```powershell
 $env:FEISHU_APP_ID="你的飞书 App ID"
 $env:FEISHU_APP_SECRET="你的飞书 App Secret"
-$env:FEISHU_REDIRECT_URI="http://你的域名或IP:8000/feishu/callback"
+$env:FEISHU_REDIRECT_URI="http://你的域名或IP:8010/feishu/callback"
 ```
 
 注意：数据库连接信息当前写在 `DBtools.py` 中，部署到生产环境前建议改为从环境变量或配置文件读取，避免账号密码直接出现在代码里。
@@ -110,7 +110,7 @@ DB_PASSWORD=你的数据库密码
 
 FEISHU_APP_ID=你的飞书AppID
 FEISHU_APP_SECRET=你的飞书AppSecret
-FEISHU_REDIRECT_URI=http://你的域名或IP:8000/feishu/callback
+FEISHU_REDIRECT_URI=http://你的域名或IP:8010/feishu/callback
 FEISHU_COOKIE_SECRET=请换成随机长字符串
 FEISHU_COOKIE_SECURE=false
 ```
@@ -130,7 +130,7 @@ docker compose logs -f happy-lunch
 启动后访问：
 
 ```text
-http://服务器IP:8000/
+http://服务器IP:8010/
 ```
 
 如果部署在 HTTPS 域名后面，建议把 `FEISHU_COOKIE_SECURE` 设为 `true`，并把飞书后台的回调地址同步改成 `.env` 中的 `FEISHU_REDIRECT_URI`。

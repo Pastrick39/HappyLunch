@@ -16,4 +16,4 @@ services:
       FEISHU_COOKIE_SECRET: ${FEISHU_COOKIE_SECRET:-}
       FEISHU_COOKIE_SECURE: ${FEISHU_COOKIE_SECURE:-false}
     ports:
-      - "8000:8000"
+      - "8010:8000"
