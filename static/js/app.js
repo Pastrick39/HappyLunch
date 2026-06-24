@@ -224,9 +224,12 @@ createApp({
       submitting: false,
       updating: false,
       querying: false,
+      receiptLoading: false,
+      receiptModalOpen: false,
       deletingKey: "",
       orderMessage: { type: "info", text: "" },
       queryMessage: { type: "info", text: "" },
+      receiptMessage: { type: "info", text: "" },
       orderForm: {
         user_name: "",
         start_date: today,
@@ -241,6 +244,7 @@ createApp({
       queryStartDate: today,
       queryEndDate: today,
       orders: [],
+      receiptRows: [],
       currentPage: 1,
       pageSize: 10
     };
@@ -270,6 +274,27 @@ createApp({
     pagedOrders() {
       const start = (this.currentPage - 1) * this.pageSize;
       return this.normalizedOrders.slice(start, start + this.pageSize);
+    },
+    receiptColumns() {
+      return ["\u65e5\u671f", "\u5730\u70b9", "\u9910\u522b", "\u83dc\u540d"];
+    },
+    normalizedReceiptRows() {
+      return this.receiptRows.map((row) => {
+        if (Array.isArray(row)) {
+          return this.receiptColumns.map((_, index) => this.formatReceiptValue(row[index]));
+        }
+
+        if (row && typeof row === "object") {
+          return [
+            this.formatReceiptValue(row.RiQi),
+            this.formatReceiptValue(row.WeiZhi),
+            this.formatReceiptValue(row.leibie),
+            this.formatReceiptValue(row.caiming)
+          ];
+        }
+
+        return [this.formatReceiptValue(row)];
+      });
     }
   },
   watch: {
@@ -461,6 +486,40 @@ createApp({
         this.querying = false;
       }
     },
+    async showTodayReceipt() {
+      this.receiptModalOpen = true;
+      this.receiptLoading = true;
+      this.receiptRows = [];
+      this.receiptMessage = { type: "info", text: "" };
+
+      try {
+        const result = await this.request("/get_receipt", {
+          method: "GET",
+          headers: {}
+        });
+        const rows = result && Array.isArray(result.rows)
+          ? result.rows
+          : Array.isArray(result)
+            ? result
+            : result
+              ? [result]
+              : [];
+
+        this.receiptRows = rows;
+        if (!rows.length) {
+          this.receiptMessage = { type: "info", text: "今日暂无菜单。" };
+        }
+      } catch (err) {
+        this.receiptMessage = { type: "error", text: err.message };
+      } finally {
+        this.receiptLoading = false;
+      }
+    },
+    closeReceiptModal() {
+      if (!this.receiptLoading) {
+        this.receiptModalOpen = false;
+      }
+    },
     async deleteOrder(item) {
       const operator = this.orderForm.operator || this.defaultOperator;
       const userName = item.userName || this.queryUser;
@@ -545,6 +604,12 @@ createApp({
       if (!value) return "";
       if (typeof value === "string") return value.replace("T", " ").slice(0, 19);
       return new Date(value).toLocaleString("zh-CN", { hour12: false });
+    },
+    formatReceiptValue(value) {
+      if (value === null || value === undefined) return "";
+      if (typeof value === "string") return value.replace("T", " ").slice(0, 19);
+      if (typeof value === "number" || typeof value === "boolean") return String(value);
+      return JSON.stringify(value);
     }
   }
 }).mount("#app");

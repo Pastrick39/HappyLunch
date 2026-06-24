@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HappyLunch 订餐</title>
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-  <link rel="stylesheet" href="/static/css/app.css?v=20260529-custom-date-picker" />
+  <link rel="stylesheet" href="/static/css/app.css?v=20260624-receipt-modal" />
 </head>
 <body>
   <div id="app" class="app-shell" v-cloak>
@@ -96,6 +96,9 @@
             <button class="button secondary" type="button" :disabled="updating || submitting" @click="updateOrder">
               {{ updating ? "修改中..." : "修改订单" }}
             </button>
+            <button class="button secondary" type="button" :disabled="receiptLoading" @click="showTodayReceipt">
+              {{ receiptLoading ? "查询中..." : "查询菜单" }}
+            </button>
             <button class="button ghost" type="button" @click="resetOrder">清空</button>
           </div>
 
@@ -174,8 +177,40 @@
         </div>
       </section>
     </main>
+
+    <div v-if="receiptModalOpen" class="modal-backdrop" @click.self="closeReceiptModal">
+      <section class="modal" role="dialog" aria-modal="true" aria-labelledby="receiptTitle">
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">HappyLunch</p>
+            <h2 id="receiptTitle">菜单</h2>
+          </div>
+          <button class="modal-close" type="button" :disabled="receiptLoading" aria-label="关闭" @click="closeReceiptModal">×</button>
+        </div>
+
+        <div class="modal-body">
+          <div v-if="receiptLoading" class="empty">正在查询今日菜单...</div>
+          <div v-else-if="receiptMessage.text" class="message" :class="receiptMessage.type">{{ receiptMessage.text }}</div>
+
+          <div v-else class="table-wrap receipt-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th v-for="column in receiptColumns" :key="column">{{ column }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(row, rowIndex) in normalizedReceiptRows" :key="rowIndex">
+                  <td v-for="(cell, cellIndex) in row" :key="cellIndex">{{ cell }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
   </div>
 
-  <script src="/static/js/app.js?v=20260616-remove-test-user"></script>
+  <script src="/static/js/app.js?v=20260624-receipt-modal"></script>
 </body>
 </html>

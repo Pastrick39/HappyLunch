@@ -820,3 +820,14 @@ def update_order(update_info):
         "missing_dates": missing_dates,
         "notification_sent": notification_sent,
     }
+
+def get_receipt():
+    get_sql="""
+    select RiQi,WeiZhi,leibie,caiming from Lunch_CaiDan
+        where CAST(RiQi AS date) >= CAST(GETDATE() AS date)
+    """
+    try:
+        rows = DBtools.sf_db(get_sql)
+    except Exception as exc:
+        raise HTTPException(status_code=500,detail=f"get receipt failed: {exc}") from exc
+    return rows

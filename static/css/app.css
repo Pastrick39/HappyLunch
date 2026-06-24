@@ -164,7 +164,7 @@ h1 {
 }
 
 .panel-body {
-  padding: 18px 22px 22px;
+  padding: 18px 22px 34px;
 }
 
 .form-grid {
@@ -550,6 +550,68 @@ tr:last-child td {
   color: var(--primary-dark);
   background: var(--primary-soft);
   border: 1px solid rgba(216, 145, 53, 0.22);
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(16, 24, 40, 0.48);
+}
+
+.modal {
+  width: min(760px, 100%);
+  max-height: min(720px, calc(100vh - 40px));
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 24px 70px rgba(16, 24, 40, 0.24);
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px 12px;
+  border-bottom: 1px solid #e4e7ec;
+}
+
+.modal-header h2 {
+  margin-bottom: 0;
+  font-size: 20px;
+  line-height: 1.3;
+}
+
+.modal-close {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  color: #475467;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.modal-body {
+  max-height: calc(100vh - 154px);
+  overflow: auto;
+  padding: 18px 20px 20px;
+}
+
+.receipt-table-wrap {
+  margin-top: 0;
+}
+
+.receipt-table-wrap table {
+  min-width: 560px;
 }
 
 @media (max-width: 900px) {

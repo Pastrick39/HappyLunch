@@ -113,5 +113,9 @@ def delete_order(delete_info: DeleteInfo):
 def update_order(update_info: UpdateInfo):
     return functions.update_order(update_info)
 
+@app.get("/get_receipt")
+def get_receipt():
+    return functions.get_receipt()
+
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=False)
+    uvicorn.run("main:app", host="0.0.0.0", port=8010, reload=False)
